@@ -27,10 +27,16 @@ fetch_stories = BashOperator(
     dag=dag,
 )
 
+verification = BashOperator(
+    task_id='verification',
+    bash_command=f'python {SCRIPTS_PATH}/check_S3.py',
+    dag=dag,
+)
+
 index_stories = BashOperator(
     task_id='index_stories',
     bash_command=f'python {SCRIPTS_PATH}/index_to_elastic.py --host elasticsearch --port 9200 --endpoint-url http://localstack:4566',
     dag=dag,
 )
 
-fetch_stories >> index_stories
+fetch_stories >> verification >> index_stories
